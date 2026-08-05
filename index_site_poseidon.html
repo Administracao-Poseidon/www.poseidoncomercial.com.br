@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>AquaVibe | Aquarismo inteligente</title>
+    <!-- Google Fonts + Font Awesome (ícones modernos) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Imagem de fundo definida pelo usuário - pinimg */
+            background-image: url('https://i.pinimg.com/736x/82/69/5e/82695ef2b69cda55a0e1e3ae6a567419.jpg');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #1a2e3b;
+            scroll-behavior: smooth;
+            position: relative;
+        }
+
+        /* Overlay suave para contraste e legibilidade do texto - ajustado para tons escuros pois a imagem pode ser escura */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 30, 35, 0.65);
+            backdrop-filter: blur(2px);
+            z-index: -2;
+        }
+
+        /* Camada extra para garantir boa leitura do texto */
+        .bg-blur {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.35);
+            z-index: -1;
+        }
+
+        /* container padrão */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* header moderno com glassmorphism + fundo semi-transparente escuro para destacar */
+        header {
+            background: rgba(15, 25, 30, 0.85);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(64, 164, 180, 0.4);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #b0e0e6, #5fcddf);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .logo i {
+            background: none;
+            color: #5fcddf;
+            font-size: 2rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 500;
+            color: #e0f2f5;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
+
+        .nav-links a:hover {
+            color: #9ee7f2;
+            transform: translateY(-2px);
+        }
+
+        .btn-contato-nav {
+            background: #1d9fb3;
+            color: white !important;
+            padding: 8px 20px;
+            border-radius: 40px;
+            transition: all 0.2s;
+        }
+
+        .btn-contato-nav:hover {
+            background: #0f7b8c;
+            transform: scale(0.97);
+        }
+
+        /* hero section */
+        .hero {
+            background: rgba(10, 25, 30, 0.7);
+            backdrop-filter: blur(6px);
+            border-radius: 0 0 48px 48px;
+            margin-bottom: 40px;
+            padding: 70px 0 80px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+        }
+
+        .hero-grid {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-text h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #d4f1f9, #7ad0e0);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .hero-text p {
+            font-size: 1.2rem;
+            color: #eef9fc;
+            font-weight: 500;
+            max-width: 500px;
+            margin-bottom: 32px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .btn-catalog {
+            background: #1d9fb3;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-catalog:hover {
+            background: #0f7b8c;
+            transform: translateY(-3px);
+        }
+
+        .hero-img i {
+            font-size: 12rem;
+            color: #b2e4ed;
+            filter: drop-shadow(8px 12px 20px rgba(0,0,0,0.3));
+        }
+
+        /* seção catálogo */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 60px 0 32px;
+            color: #f0fcff;
+            position: relative;
+            background: rgba(0, 30, 35, 0.7);
+            backdrop-filter: blur(8px);
+            display: inline-block;
+            width: auto;
+            padding: 12px 32px;
+            border-radius: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 1px solid rgba(100, 200, 210, 0.5);
+        }
+
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 70px;
+            height: 4px;
+            background: #5fcddf;
+            margin: 12px auto 0;
+            border-radius: 4px;
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: rgba(20, 40, 45, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+            transition: transform 0.25s ease, box-shadow 0.2s;
+            cursor: default;
+            border: 1px solid rgba(80, 180, 200, 0.4);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 28px 38px rgba(0, 0, 0, 0.35);
+            background: rgba(30, 55, 60, 0.92);
+        }
+
+        .product-img {
+            background: rgba(0, 40, 45, 0.7);
+            text-align: center;
+            padding: 28px 0;
+            font-size: 3.8rem;
+            color: #7ad0e0;
+        }
+
+        .product-info {
+            padding: 20px 20px 24px;
+        }
+
+        .product-info h3 {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #d4f1f9;
+        }
+
+        .product-desc {
+            color: #caeef5;
+            font-size: 0.9rem;
+            margin: 12px 0;
+            line-height: 1.4;
+        }
+
+        .price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #b3e8f2;
+            margin: 16px 0 12px;
+        }
+
+        .btn-produto {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1.5px solid #5fcddf;
+            color: #e0f2f5;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            width: 100%;
+        }
+
+        .btn-produto:hover {
+            background: #1d9fb3;
+            color: white;
+            border-color: #1d9fb3;
+        }
+
+        /* contatos + localização */
+        .contact-section {
+            background: rgba(15, 35, 40, 0.85);
+            backdrop-filter: blur(8px);
+            border-radius: 56px;
+            margin: 60px 0;
+            padding: 50px 40px;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.3);
+            border: 1px solid rgba(80, 180, 200, 0.5);
+        }
+
+        .contact-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: space-between;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            color: #d4f1f9;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .contact-detail i {
+            font-size: 1.6rem;
+            width: 42px;
+            color: #7ad0e0;
+        }
+
+        .contact-detail p {
+            font-size: 1.05rem;
+            color: #eef9fc;
+        }
+
+        .social-icons {
+            margin-top: 32px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .social-icons a {
+            background: #2a5f6b;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4f1f9;
+            font-size: 1.5rem;
+            transition: 0.2s;
+        }
+
+        .social-icons a:hover {
+            background: #1d9fb3;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .map-fake {
+            flex: 1;
+            background: rgba(0, 35, 40, 0.8);
+            backdrop-filter: blur(4px);
+            border-radius: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 40px 20px;
+            text-align: center;
+            color: #caeef5;
+            box-shadow: inset 0 0 0 2px rgba(100, 200, 210, 0.3), 0 6px 12px rgba(0,0,0,0.2);
+        }
+
+        .map-fake i {
+            font-size: 4rem;
+            margin-bottom: 12px;
+            color: #7ad0e0;
+        }
+
+        /* newsletter e sugestões */
+        .suggestion-box {
+            background: rgba(10, 35, 40, 0.85);
+            backdrop-filter: blur(8px);
+            padding: 44px 32px;
+            border-radius: 48px;
+            text-align: center;
+            margin-bottom: 40px;
+            border: 1px solid rgba(80, 180, 200, 0.5);
+        }
+
+        .suggestion-box h3 {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            color: #d4f1f9;
+        }
+
+        .suggestion-box p {
+            max-width: 600px;
+            margin: 0 auto 24px;
+            color: #e0f2f5;
+        }
+
+        .suggestion-form {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            max-width: 550px;
+            margin: 0 auto;
+        }
+
+        .suggestion-form input {
+            flex: 2;
+            padding: 14px 20px;
+            border: 1px solid #3a9aab;
+            border-radius: 60px;
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            background: rgba(220, 250, 255, 0.9);
+        }
+
+        .suggestion-form input:focus {
+            border-color: #5fcddf;
+            box-shadow: 0 0 0 3px rgba(95,205,223,0.3);
+        }
+
+        .suggestion-form button {
+            background: #1d9fb3;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 60px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .suggestion-form button:hover {
+            background: #0f7b8c;
+        }
+
+        footer {
+            background: rgba(0, 20, 25, 0.92);
+            backdrop-filter: blur(8px);
+            color: #b9e2ea;
+            text-align: center;
+            padding: 32px 0;
+            border-radius: 32px 32px 0 0;
+            margin-top: 40px;
+            border-top: 1px solid rgba(80, 180, 200, 0.3);
+        }
+
+        @media (max-width: 780px) {
+            .hero-text h1 {
+                font-size: 2.2rem;
+            }
+            .hero-img i {
+                font-size: 8rem;
+            }
+            nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            .contact-grid {
+                flex-direction: column;
+            }
+            .section-title {
+                font-size: 1.7rem;
+                white-space: nowrap;
+            }
+        }
+
+        button {
+            background: none;
+            border: none;
+        }
+
+        /* toast simples */
+        .toast-msg {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a2e38;
+            color: #eef9fc;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 500;
+            z-index: 999;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            backdrop-filter: blur(12px);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: 0.2s;
+            border: 1px solid #5fcddf;
+        }
+    </style>
+</head>
+<body>
+<div class="bg-blur"></div>
+
+<header>
+    <div class="container">
+        <nav>
+            <div class="logo">
+                <i class="fas fa-fish"></i>
+                <span>AquaVibe</span>
+            </div>
+            <div class="nav-links">
+                <a href="#catalogo">Catálogo</a>
+                <a href="#contatos">Contatos</a>
+                <a href="#sugestoes" class="btn-contato-nav">Sugestões</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- Hero -->
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-text">
+                <h1>Aquário equilibrado,<br>vida vibrante.</h1>
+                <p>Produtos selecionados para peixes, plantas e águas cristalinas. Tecnologia e naturalmente sustentável.</p>
+                <button class="btn-catalog" id="scrollToCatalogBtn"><i class="fas fa-water"></i> Explorar produtos</button>
+            </div>
+            <div class="hero-img">
+                <i class="fas fa-jellyfish"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catálogo de produtos -->
+    <div class="container" id="catalogo">
+        <div class="section-title">🐠 Catálogo Premium</div>
+        <div class="catalog-grid" id="productsContainer">
+            <!-- produtos preenchidos via js -->
+        </div>
+    </div>
+
+    <!-- Contatos + localização (seção contatos) -->
+    <div class="container" id="contatos">
+        <div class="contact-section">
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <h3><i class="fas fa-headset"></i> Fale conosco</h3>
+                    <div class="contact-detail">
+                        <i class="fab fa-whatsapp"></i>
+                        <p>(11) 98888-7766 <span style="font-size:0.85rem;">(whatsapp)</span></p>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="far fa-envelope"></i>
+                        <p>aquavibe@aquarismo.com</p>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Av. das Águas Claras, 1020 - São Paulo, SP</p>
+                    </div>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="map-fake">
+                    <i class="fas fa-map-pin"></i>
+                    <strong>AquaVibe Store</strong>
+                    <p style="margin-top:12px;">📍 Localização central | Estacionamento próprio<br>⌛ Seg-Sex 9h-19h | Sáb 9h-14h</p>
+                    <i class="fas fa-store" style="font-size:2rem; margin-top:12px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sugestões de design / caixa de ideias -->
+    <div class="container" id="sugestoes">
+        <div class="suggestion-box">
+            <h3><i class="fas fa-lightbulb"></i> Sugestões para o site</h3>
+            <p>Adoraríamos saber suas ideias para melhorar a experiência ou novos produtos!</p>
+            <div class="suggestion-form">
+                <input type="text" id="suggestionInput" placeholder="Ex: filtro mais silencioso, design noturno...">
+                <button id="sendSuggestionBtn">Enviar sugestão <i class="fas fa-paper-plane"></i></button>
+            </div>
+            <p style="font-size:0.8rem; margin-top:18px;">✨ Sua opinião molda o AquaVibe — design moderno e intuitivo sempre em evolução.</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="container">
+        <p><i class="fas fa-fish"></i> AquaVibe • Aquarismo inteligente para aquaristas apaixonados</p>
+        <p style="margin-top: 12px; font-size: 0.8rem;">© 2025 — Catálogo dinâmico, contato rápido e design responsivo.</p>
+    </div>
+</footer>
+
+<script>
+    // --- CATÁLOGO DE PRODUTOS ---
+    const products = [
+        {
+            name: "Filtro Canister EcoFlow 750",
+            desc: "Filtragem silenciosa, vazão ajustável para até 200L. Economia de energia.",
+            price: "R$ 279,90",
+            icon: "fas fa-water-pump"
+        },
+        {
+            name: "Aquecedor Digital 150W",
+            desc: "Controle preciso com display LCD, proteção seca. Ideal para águas tropicais.",
+            price: "R$ 119,90",
+            icon: "fas fa-temperature-high"
+        },
+        {
+            name: "LED Plant Growth Spectrum 60cm",
+            desc: "Iluminação full spectrum para plantas aquáticas, timer integrado.",
+            price: "R$ 249,00",
+            icon: "fas fa-lightbulb"
+        },
+        {
+            name: "Condicionador Bacteriano BioStart",
+            desc: "Acelera ciclagem biológica, reduz amônia. 250ml trata até 500L.",
+            price: "R$ 46,90",
+            icon: "fas fa-flask"
+        },
+        {
+            name: "Alimento Premium Color Plus",
+            desc: "Ração para peixes de aquário, realça cores e fortalece imunidade.",
+            price: "R$ 34,50",
+            icon: "fas fa-fish"
+        },
+        {
+            name: "Termostato Externo Dual Sense",
+            desc: "Segurança extra com dois sensores, controle remoto via bluetooth.",
+            price: "R$ 189,90",
+            icon: "fas fa-microchip"
+        },
+        {
+            name: "Kit CO2 Biológico Artesanal",
+            desc: "Sistema sustentável de co2 para planted tank, reutilizável.",
+            price: "R$ 97,00",
+            icon: "fas fa-leaf"
+        },
+        {
+            name: "Cascalho Decorativo Rio Negro",
+            desc: "Grãos naturais, pH neutro, 3kg ideal para decoração e substrato.",
+            price: "R$ 39,90",
+            icon: "fas fa-gem"
+        }
+    ];
+
+    function renderCatalog() {
+        const container = document.getElementById('productsContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        products.forEach(prod => {
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-img">
+                    <i class="${prod.icon}"></i>
+                </div>
+                <div class="product-info">
+                    <h3>${prod.name}</h3>
+                    <div class="product-desc">${prod.desc}</div>
+                    <div class="price">${prod.price}</div>
+                    <button class="btn-produto" data-produto="${prod.name}"><i class="fas fa-cart-shopping"></i> Interessado</button>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        const botoesProduto = document.querySelectorAll('.btn-produto');
+        botoesProduto.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const nomeProduto = btn.getAttribute('data-produto') || 'produto';
+                showToast(`🛒 ${nomeProduto} adicionado ao carrinho de orçamento! Entre em contato.`);
+            });
+        });
+    }
+
+    function showToast(message) {
+        let existingToast = document.querySelector('.toast-msg');
+        if(existingToast) existingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast-msg';
+        toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2800);
+    }
+
+    function setupSuggestion() {
+        const sendBtn = document.getElementById('sendSuggestionBtn');
+        const inputSug = document.getElementById('suggestionInput');
+        if (!sendBtn) return;
+        sendBtn.addEventListener('click', () => {
+            const suggestionText = inputSug.value.trim();
+            if (suggestionText === "") {
+                showToast("💡 Escreva uma sugestão antes de enviar!");
+                return;
+            }
+            showToast(`📬 Obrigado pela sugestão: "${suggestionText.substring(0, 50)}" — vamos analisar!`);
+            inputSug.value = '';
+            console.log(`Sugestão enviada: ${suggestionText}`);
+        });
+    }
+
+    function setupScroll() {
+        const btnCatalog = document.getElementById('scrollToCatalogBtn');
+        if(btnCatalog) {
+            btnCatalog.addEventListener('click', () => {
+                const catalogSection = document.getElementById('catalogo');
+                if(catalogSection) {
+                    catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+
+        const navLinks = document.querySelectorAll('.nav-links a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const hash = link.getAttribute('href');
+                if(hash && hash.startsWith('#')) {
+                    e.preventDefault();
+                    const targetElement = document.querySelector(hash);
+                    if(targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            });
+        });
+    }
+
+    function addContactInteractive() {
+        const whatsappDiv = document.querySelector('.contact-detail .fab.fa-whatsapp')?.parentElement;
+        if(whatsappDiv) {
+            whatsappDiv.style.cursor = 'pointer';
+            whatsappDiv.addEventListener('click', () => {
+                showToast("📱 Clique no link do WhatsApp: (11) 98888-7766 — atendimento rápido!");
+            });
+        }
+        const emailDiv = document.querySelector('.contact-detail .far.fa-envelope')?.parentElement;
+        if(emailDiv) {
+            emailDiv.style.cursor = 'pointer';
+            emailDiv.addEventListener('click', () => {
+                showToast("✉️ Envie e-mail para aquavibe@aquarismo.com — responderemos em até 12h.");
+            });
+        }
+        const socials = document.querySelectorAll('.social-icons a');
+        socials.forEach(soc => {
+            soc.addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast("🔜 Em breve comunidade AquaVibe nas redes! Siga para novidades.");
+            });
+        });
+    }
+
+    function addMapInteraction() {
+        const mapDiv = document.querySelector('.map-fake');
+        if(mapDiv) {
+            mapDiv.style.cursor = 'pointer';
+            mapDiv.addEventListener('click', () => {
+                showToast("📍 AquaVibe Store - Av. das Águas Claras, 1020 | Abrimos de segunda a sábado!");
+            });
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        renderCatalog();
+        setupSuggestion();
+        setupScroll();
+        addContactInteractive();
+        addMapInteraction();
+        setTimeout(() => {
+            showToast("🐟 Bem-vindo ao AquaVibe! Fundo personalizado com tema aquarista.");
+        }, 800);
+    });
+</script>
+</body>
+</html>
