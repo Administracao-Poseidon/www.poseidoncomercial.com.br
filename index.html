@@ -16,7 +16,6 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            /* Imagem de fundo definida pelo usuário - pinimg */
             background-image: url('https://i.pinimg.com/736x/82/69/5e/82695ef2b69cda55a0e1e3ae6a567419.jpg');
             background-size: cover;
             background-position: center center;
@@ -27,7 +26,6 @@
             position: relative;
         }
 
-        /* Overlay suave para contraste e legibilidade do texto - ajustado para tons escuros pois a imagem pode ser escura */
         body::before {
             content: '';
             position: fixed;
@@ -40,7 +38,6 @@
             z-index: -2;
         }
 
-        /* Camada extra para garantir boa leitura do texto */
         .bg-blur {
             position: fixed;
             top: 0;
@@ -51,14 +48,12 @@
             z-index: -1;
         }
 
-        /* container padrão */
         .container {
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 24px;
         }
 
-        /* header moderno com glassmorphism + fundo semi-transparente escuro para destacar */
         header {
             background: rgba(15, 25, 30, 0.85);
             backdrop-filter: blur(12px);
@@ -129,7 +124,6 @@
             transform: scale(0.97);
         }
 
-        /* hero section */
         .hero {
             background: rgba(10, 25, 30, 0.7);
             backdrop-filter: blur(6px);
@@ -195,7 +189,6 @@
             filter: drop-shadow(8px 12px 20px rgba(0,0,0,0.3));
         }
 
-        /* seção catálogo */
         .section-title {
             font-size: 2rem;
             font-weight: 700;
@@ -299,7 +292,6 @@
             border-color: #1d9fb3;
         }
 
-        /* contatos + localização */
         .contact-section {
             background: rgba(15, 35, 40, 0.85);
             backdrop-filter: blur(8px);
@@ -391,7 +383,6 @@
             color: #7ad0e0;
         }
 
-        /* newsletter e sugestões */
         .suggestion-box {
             background: rgba(10, 35, 40, 0.85);
             backdrop-filter: blur(8px);
