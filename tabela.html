@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="pt-BR">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poseidon Tabela Interna</title>
   <style>
@@ -9,7 +9,6 @@
     body { max-width: 1200px; margin: 20px auto; padding: 0 15px; background: #f5f5f5; }
     h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
 
-    /* Formulário */
     .form-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
     .grupo { display: flex; flex-direction: column; }
@@ -22,20 +21,21 @@
     .mensagem { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
     .sucesso { background: #d4edda; color: #155724; }
     .erro { background: #f8d7da; color: #721c24; }
+    .apagar { background: #e74c3c; padding: 6px 10px; font-size: 13px; width: auto; border-radius: 4px; }
+    .apagar:hover { background: #c0392b; }
 
-    /* Tabela */
     .tabela-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
     th { background: #2c3e50; color: white; }
     tr:hover { background: #f9f9f9; }
+    th:last-child, td:last-child { text-align: center; }
   </style>
 </head>
 <body>
 
 <h1>📦 Poseidon Tabela Interna de Produtos e Preços</h1>
 
-<!-- Formulário -->
 <div class="form-box">
   <h3>Cadastrar Novo Produto</h3>
   <form id="formProduto">
@@ -85,7 +85,6 @@
   </form>
 </div>
 
-<!-- Tabela -->
 <div class="tabela-box">
   <h3>Registros da Planilha</h3>
   <table id="tabelaDados">
@@ -99,17 +98,18 @@
         <th>Venda 100%</th>
         <th>Fornecedor</th>
         <th>Contato</th>
+        <th>Ação</th>
       </tr>
     </thead>
-    <tbody><tr><td colspan="8" style="color:red">Erro ao carregar: Unexpected token '&lt;', "<!--?xml vers"... is not valid JSON</td--></td></tr></tbody>
+    <tbody>
+      <tr><td colspan="9">Carregando...</td></tr>
+    </tbody>
   </table>
 </div>
 
 <script>
-// 👇 COLOQUE A URL DO SEU APlicativo DA WEB AQUI 👇
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzyidJAxRiMT_1lVA2syjwcISYg8uBQauCyz-OTW1s0OMv4s2cl0jnf-rIYWmj0D7g_/exec";
 
-// Calcula preços automaticamente
 function calcularPrecos() {
   const custo = parseFloat(document.getElementById("custo").value) || 0;
   document.getElementById("venda50").value = (custo * 1.5).toFixed(2);
@@ -117,7 +117,7 @@ function calcularPrecos() {
   document.getElementById("venda100").value = (custo * 2).toFixed(2);
 }
 
-// Envia dados para a planilha
+// Salvar produto
 document.getElementById("formProduto").addEventListener("submit", async (e) => {
   e.preventDefault();
   const msg = document.getElementById("mensagem");
@@ -137,17 +137,22 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   try {
     const resposta = await fetch(URL_SCRIPT, {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      redirect: "follow",
       body: JSON.stringify(dados)
     });
-    const resultado = await resposta.json();
+
+    const texto = await resposta.text();
+    let resultado;
+    try { resultado = JSON.parse(texto); }
+    catch { throw new Error(`Servidor retornou: ${texto.substring(0,200)}`); }
 
     if (resultado.status === "sucesso") {
       msg.textContent = "✅ Produto salvo com sucesso!";
       msg.className = "mensagem sucesso";
       msg.style.display = "block";
       e.target.reset();
-      carregarDados(); // Atualiza a tabela
+      carregarDados();
     } else {
       throw new Error(resultado.mensagem || "Erro ao salvar");
     }
@@ -158,38 +163,82 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// Carrega dados da planilha na tabela
+// ✅ Carregar dados com botão APAGAR
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
-  corpo.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
+  corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
 
   try {
-    const resposta = await fetch(URL_SCRIPT);
-    const dados = await resposta.json();
+    const resposta = await fetch(URL_SCRIPT + "?t=" + Date.now(), {
+      method: "GET",
+      cache: "no-store"
+    });
+    const texto = await resposta.text();
+    let dados;
+    try { dados = JSON.parse(texto); }
+    catch { throw new Error(`Resposta não é JSON: ${texto.substring(0,150)}...`); }
 
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    dados.slice(1).forEach(linha => { // Pula cabeçalho
+    // linhaIndice = 1 é a primeira linha de dados na planilha
+    dados.slice(1).forEach((linha, indice) => {
+      const linhaIndicePlanilha = indice + 2; // +2 porque cabeçalho = linha 1
       const tr = document.createElement("tr");
       linha.forEach(celula => {
         const td = document.createElement("td");
         td.textContent = celula;
         tr.appendChild(td);
       });
+
+      // Coluna com botão APAGAR
+      const tdAcao = document.createElement("td");
+      const btnApagar = document.createElement("button");
+      btnApagar.textContent = "🗑️ Apagar";
+      btnApagar.className = "apagar";
+      btnApagar.onclick = () => apagarLinha(linhaIndicePlanilha, linha[1]); // linha[1] = nome do produto
+      tdAcao.appendChild(btnApagar);
+      tr.appendChild(tdAcao);
+
       corpo.appendChild(tr);
     });
   } catch (erro) {
-    corpo.innerHTML = `<tr><td colspan='8' style="color:red">Erro ao carregar: ${erro.message}</td></tr>`;
+    corpo.innerHTML = `<tr><td colspan='9' style="color:red">Erro: ${erro.message}</td></tr>`;
   }
 }
 
-// Data padrão: hoje
-document.getElementById("data").valueAsDate = new Date();
+// ✅ Função APAGAR
+async function apagarLinha(indiceLinha, nomeProduto) {
+  const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
+  if (!confirmacao) return;
 
-// Carrega dados ao abrir
+  try {
+    const resposta = await fetch(URL_SCRIPT, {
+      method: "DELETE",
+      headers: {"Content-Type": "text/plain;charset=utf-8"},
+      redirect: "follow",
+      body: JSON.stringify({ linha: indiceLinha })
+    });
+
+    const texto = await resposta.text();
+    let resultado;
+    try { resultado = JSON.parse(texto); }
+    catch { throw new Error(`Servidor retornou: ${texto.substring(0,200)}`); }
+
+    if (resultado.status === "sucesso") {
+      alert("✅ Produto apagado com sucesso!");
+      carregarDados(); // Recarrega a tabela
+    } else {
+      throw new Error(resultado.mensagem || "Erro ao apagar");
+    }
+  } catch (erro) {
+    alert("❌ Erro ao apagar: " + erro.message);
+  }
+}
+
+document.getElementById("data").valueAsDate = new Date();
 carregarDados();
 </script>
 
-
-</body></html>
+</body>
+</html>
