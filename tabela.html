@@ -163,7 +163,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// ✅ Carregar dados com botão APAGAR
+// Carregar dados
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
@@ -181,9 +181,8 @@ async function carregarDados() {
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    // linhaIndice = 1 é a primeira linha de dados na planilha
     dados.slice(1).forEach((linha, indice) => {
-      const linhaIndicePlanilha = indice + 2; // +2 porque cabeçalho = linha 1
+      const linhaIndicePlanilha = indice + 2;
       const tr = document.createElement("tr");
       linha.forEach(celula => {
         const td = document.createElement("td");
@@ -191,12 +190,11 @@ async function carregarDados() {
         tr.appendChild(td);
       });
 
-      // Coluna com botão APAGAR
       const tdAcao = document.createElement("td");
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
       btnApagar.className = "apagar";
-      btnApagar.onclick = () => apagarLinha(linhaIndicePlanilha, linha[1]); // linha[1] = nome do produto
+      btnApagar.onclick = () => apagarLinha(linhaIndicePlanilha, linha[1]);
       tdAcao.appendChild(btnApagar);
       tr.appendChild(tdAcao);
 
@@ -207,17 +205,18 @@ async function carregarDados() {
   }
 }
 
-// ✅ Função APAGAR
+// ✅ Apagar — usando POST em vez de DELETE
 async function apagarLinha(indiceLinha, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
 
   try {
+    // Envia como POST com acao: "apagar"
     const resposta = await fetch(URL_SCRIPT, {
-      method: "DELETE",
+      method: "POST",
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       redirect: "follow",
-      body: JSON.stringify({ linha: indiceLinha })
+      body: JSON.stringify({ acao: "apagar", linha: indiceLinha })
     });
 
     const texto = await resposta.text();
@@ -227,7 +226,7 @@ async function apagarLinha(indiceLinha, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados(); // Recarrega a tabela
+      carregarDados();
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
