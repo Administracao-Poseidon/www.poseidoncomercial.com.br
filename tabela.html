@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poseidon Tabela Interna</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    body { max-width: 1200px; margin: 20px auto; padding: 0 15px; background: #f5f5f5; }
+    h1 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+
+    /* Formulário */
+    .form-box { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px; }
+    .grupo { display: flex; flex-direction: column; }
+    label { font-weight: 600; margin-bottom: 5px; color: #34495e; }
+    input { padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 15px; }
+    .valores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0; }
+    .valores input { background: #e8f4fd; font-weight: bold; color: #2980b9; }
+    button { background: #27ae60; color: white; border: none; padding: 12px; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; width: 100%; }
+    button:hover { background: #219653; }
+    .mensagem { margin-top: 10px; padding: 10px; border-radius: 4px; display: none; }
+    .sucesso { background: #d4edda; color: #155724; }
+    .erro { background: #f8d7da; color: #721c24; }
+
+    /* Tabela */
+    .tabela-box { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; font-size: 14px; }
+    th { background: #2c3e50; color: white; }
+    tr:hover { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+
+<h1>📦 Poseidon Tabela Interna de Produtos e Preços</h1>
+
+<!-- Formulário -->
+<div class="form-box">
+  <h3>Cadastrar Novo Produto</h3>
+  <form id="formProduto">
+    <div class="form-grid">
+      <div class="grupo">
+        <label>Data</label>
+        <input type="date" id="data" required="">
+      </div>
+      <div class="grupo">
+        <label>Produto</label>
+        <input type="text" id="produto" required="" placeholder="Nome do produto">
+      </div>
+      <div class="grupo">
+        <label>Custo (R$)</label>
+        <input type="number" step="0.01" id="custo" required="" placeholder="0,00" oninput="calcularPrecos()">
+      </div>
+    </div>
+
+    <div class="valores">
+      <div class="grupo">
+        <label>Venda 50%</label>
+        <input type="text" id="venda50" readonly="">
+      </div>
+      <div class="grupo">
+        <label>Venda 70%</label>
+        <input type="text" id="venda70" readonly="">
+      </div>
+      <div class="grupo">
+        <label>Venda 100%</label>
+        <input type="text" id="venda100" readonly="">
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="grupo">
+        <label>Fornecedor</label>
+        <input type="text" id="fornecedor" required="" placeholder="Nome da empresa">
+      </div>
+      <div class="grupo">
+        <label>Contato</label>
+        <input type="text" id="contato" required="" placeholder="Telefone/Email">
+      </div>
+    </div>
+
+    <button type="submit">💾 Salvar na Planilha</button>
+    <div id="mensagem" class="mensagem"></div>
+  </form>
+</div>
+
+<!-- Tabela -->
+<div class="tabela-box">
+  <h3>Registros da Planilha</h3>
+  <table id="tabelaDados">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Produto</th>
+        <th>Custo</th>
+        <th>Venda 50%</th>
+        <th>Venda 70%</th>
+        <th>Venda 100%</th>
+        <th>Fornecedor</th>
+        <th>Contato</th>
+      </tr>
+    </thead>
+    <tbody><tr><td colspan="8" style="color:red">Erro ao carregar: Unexpected token '&lt;', "<!--?xml vers"... is not valid JSON</td--></td></tr></tbody>
+  </table>
+</div>
+
+<script>
+// 👇 COLOQUE A URL DO SEU APlicativo DA WEB AQUI 👇
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzyidJAxRiMT_1lVA2syjwcISYg8uBQauCyz-OTW1s0OMv4s2cl0jnf-rIYWmj0D7g_/exec";
+
+// Calcula preços automaticamente
+function calcularPrecos() {
+  const custo = parseFloat(document.getElementById("custo").value) || 0;
+  document.getElementById("venda50").value = (custo * 1.5).toFixed(2);
+  document.getElementById("venda70").value = (custo * 1.7).toFixed(2);
+  document.getElementById("venda100").value = (custo * 2).toFixed(2);
+}
+
+// Envia dados para a planilha
+document.getElementById("formProduto").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById("mensagem");
+  msg.style.display = "none";
+
+  const dados = {
+    data: document.getElementById("data").value,
+    produto: document.getElementById("produto").value,
+    custo: parseFloat(document.getElementById("custo").value).toFixed(2),
+    venda50: document.getElementById("venda50").value,
+    venda70: document.getElementById("venda70").value,
+    venda100: document.getElementById("venda100").value,
+    fornecedor: document.getElementById("fornecedor").value,
+    contato: document.getElementById("contato").value
+  };
+
+  try {
+    const resposta = await fetch(URL_SCRIPT, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(dados)
+    });
+    const resultado = await resposta.json();
+
+    if (resultado.status === "sucesso") {
+      msg.textContent = "✅ Produto salvo com sucesso!";
+      msg.className = "mensagem sucesso";
+      msg.style.display = "block";
+      e.target.reset();
+      carregarDados(); // Atualiza a tabela
+    } else {
+      throw new Error(resultado.mensagem || "Erro ao salvar");
+    }
+  } catch (erro) {
+    msg.textContent = "❌ Erro: " + erro.message;
+    msg.className = "mensagem erro";
+    msg.style.display = "block";
+  }
+});
+
+// Carrega dados da planilha na tabela
+async function carregarDados() {
+  const corpo = document.querySelector("#tabelaDados tbody");
+  corpo.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
+
+  try {
+    const resposta = await fetch(URL_SCRIPT);
+    const dados = await resposta.json();
+
+    if (!Array.isArray(dados)) throw new Error("Formato inválido");
+
+    corpo.innerHTML = "";
+    dados.slice(1).forEach(linha => { // Pula cabeçalho
+      const tr = document.createElement("tr");
+      linha.forEach(celula => {
+        const td = document.createElement("td");
+        td.textContent = celula;
+        tr.appendChild(td);
+      });
+      corpo.appendChild(tr);
+    });
+  } catch (erro) {
+    corpo.innerHTML = `<tr><td colspan='8' style="color:red">Erro ao carregar: ${erro.message}</td></tr>`;
+  }
+}
+
+// Data padrão: hoje
+document.getElementById("data").valueAsDate = new Date();
+
+// Carrega dados ao abrir
+carregarDados();
+</script>
+
+
+</body></html>
