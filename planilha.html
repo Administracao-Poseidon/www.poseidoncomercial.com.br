@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="pt-BR">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Poseidon Tabela Interna</title>
   <style>
@@ -101,12 +101,14 @@
         <th>Contato</th>
       </tr>
     </thead>
-    <tbody><tr><td colspan="8" style="color:red">Erro ao carregar: Unexpected token '&lt;', "<!--?xml vers"... is not valid JSON</td--></td></tr></tbody>
+    <tbody>
+      <tr><td colspan="8">Carregando...</td></tr>
+    </tbody>
   </table>
 </div>
 
 <script>
-// 👇 COLOQUE A URL DO SEU APlicativo DA WEB AQUI 👇
+// 👇 URL do seu Apps Script
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzyidJAxRiMT_1lVA2syjwcISYg8uBQauCyz-OTW1s0OMv4s2cl0jnf-rIYWmj0D7g_/exec";
 
 // Calcula preços automaticamente
@@ -158,19 +160,34 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// Carrega dados da planilha na tabela
+// ✅ Carrega dados da planilha na tabela — CORRIGIDO CONTRA CACHE
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='8'>Carregando...</td></tr>";
 
   try {
-    const resposta = await fetch(URL_SCRIPT);
-    const dados = await resposta.json();
+    // Adiciona parâmetro aleatório + sem cache para FORÇAR busca nova
+    const resposta = await fetch(URL_SCRIPT + "?t=" + Date.now(), {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    // Lê o texto bruto primeiro para diagnóstico
+    const texto = await resposta.text();
+    console.log("Resposta recebida:", texto);
+
+    // Converte para JSON com tratamento de erro
+    let dados;
+    try {
+      dados = JSON.parse(texto);
+    } catch {
+      throw new Error(`Resposta não é JSON: ${texto.substring(0, 150)}...`);
+    }
 
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    dados.slice(1).forEach(linha => { // Pula cabeçalho
+    dados.slice(1).forEach(linha => { // Pula linha de cabeçalho
       const tr = document.createElement("tr");
       linha.forEach(celula => {
         const td = document.createElement("td");
@@ -179,6 +196,7 @@ async function carregarDados() {
       });
       corpo.appendChild(tr);
     });
+
   } catch (erro) {
     corpo.innerHTML = `<tr><td colspan='8' style="color:red">Erro ao carregar: ${erro.message}</td></tr>`;
   }
@@ -187,9 +205,9 @@ async function carregarDados() {
 // Data padrão: hoje
 document.getElementById("data").valueAsDate = new Date();
 
-// Carrega dados ao abrir
+// Carrega dados ao abrir a página
 carregarDados();
 </script>
 
-
-</body></html>
+</body>
+</html>
