@@ -108,7 +108,19 @@
 </div>
 
 <script>
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxDF3ARtKJW42OSovMpXVkG3KYvW9vprdepZkR-PH-uj803rcWaljBLjecN0GuakkNY/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzyidJAxRiMT_1lVA2syjwcISYg8uBQauCyz-OTW1s0OMv4s2cl0jnf-rIYWmj0D7g_/exec";
+
+// ✅ Formata data para DD/MM/AAAA
+function formatarData(data) {
+  if (!data) return "";
+  // Se vier como objeto Data ou string ISO
+  const d = new Date(data);
+  if (isNaN(d.getTime())) return data; // Se não for data válida, devolve como está
+  const dia = String(d.getDate()).padStart(2, '0');
+  const mes = String(d.getMonth() + 1).padStart(2, '0');
+  const ano = d.getFullYear();
+  return `${dia}/${mes}/${ano}`;
+}
 
 function calcularPrecos() {
   const custo = parseFloat(document.getElementById("custo").value) || 0;
@@ -123,8 +135,11 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   const msg = document.getElementById("mensagem");
   msg.style.display = "none";
 
+  const dataInput = document.getElementById("data").value; // Formato AAAA-MM-DD
+  const dataFormatada = formatarData(dataInput); // ✅ Converte para DD/MM/AAAA
+
   const dados = {
-    data: document.getElementById("data").value,
+    data: dataFormatada, // ✅ Salva já formatado na planilha!
     produto: document.getElementById("produto").value,
     custo: parseFloat(document.getElementById("custo").value).toFixed(2),
     venda50: document.getElementById("venda50").value,
@@ -152,6 +167,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
       msg.className = "mensagem sucesso";
       msg.style.display = "block";
       e.target.reset();
+      document.getElementById("data").valueAsDate = new Date(); // Restaura data de hoje
       carregarDados();
     } else {
       throw new Error(resultado.mensagem || "Erro ao salvar");
@@ -163,7 +179,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// ✅ Carrega dados com NÚMERO EXATO da linha
+// ✅ Carrega dados com NÚMERO EXATO da linha e DATA FORMATADA
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
@@ -185,18 +201,23 @@ async function carregarDados() {
     // Pula cabeçalho (linha 0) e monta tabela
     for (let i = 1; i < dados.length; i++) {
       const linha = dados[i];
-      const numeroLinhaReal = linha[8]; // ✅ Vem direto do Google! Não calculado!
+      const numeroLinhaReal = linha[8]; // ✅ Número real da linha
       
       const tr = document.createElement("tr");
       
-      // Mostra os 8 campos (sem o número da linha)
-      for (let j = 0; j < 8; j++) {
+      // ✅ Primeira coluna = DATA FORMATADA
+      const tdData = document.createElement("td");
+      tdData.textContent = formatarData(linha[0]); // ✅ Converte para DD/MM/AAAA
+      tr.appendChild(tdData);
+
+      // Demais colunas (produto, custo, venda...)
+      for (let j = 1; j < 8; j++) {
         const td = document.createElement("td");
         td.textContent = linha[j];
         tr.appendChild(td);
       }
 
-      // Botão Apagar com o NÚMERO REAL da linha
+      // Botão Apagar
       const tdAcao = document.createElement("td");
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
@@ -212,7 +233,7 @@ async function carregarDados() {
   }
 }
 
-// ✅ Apaga com o NÚMERO EXATO — sem erro!
+// ✅ Apaga com o NÚMERO EXATO
 async function apagarLinha(numeroLinha, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
@@ -232,7 +253,7 @@ async function apagarLinha(numeroLinha, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados(); // ✅ Recarrega tudo e pega NÚMEROS NOVOS
+      carregarDados();
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
@@ -241,6 +262,7 @@ async function apagarLinha(numeroLinha, nomeProduto) {
   }
 }
 
+// Data de hoje no carregamento
 document.getElementById("data").valueAsDate = new Date();
 carregarDados();
 </script>
