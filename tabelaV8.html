@@ -163,7 +163,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// Carregar dados
+// ✅ Carregar dados com número EXATO da linha
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
@@ -181,34 +181,36 @@ async function carregarDados() {
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    dados.slice(1).forEach(linha => {
-      const dataLinha = linha[0];
-      const nomeLinha = linha[1];
+    // dados[0] = cabeçalho, dados[1] = linha 2 da planilha...
+    for (let i = 1; i < dados.length; i++) {
+      const linhaPlanilha = dados[i][8]; // ✅ Último valor = número real da linha
       const tr = document.createElement("tr");
-      linha.forEach(celula => {
+      
+      // Exibe apenas os 8 primeiros campos (sem o número da linha)
+      for (let j = 0; j < 8; j++) {
         const td = document.createElement("td");
-        td.textContent = celula;
+        td.textContent = dados[i][j];
         tr.appendChild(td);
-      });
+      }
 
+      // Botão apagar
       const tdAcao = document.createElement("td");
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
       btnApagar.className = "apagar";
-      // ✅ Envia DATA e NOME em vez de número de linha
-      btnApagar.onclick = () => apagarLinha(dataLinha, nomeLinha);
+      btnApagar.onclick = () => apagarLinha(linhaPlanilha, dados[i][1]);
       tdAcao.appendChild(btnApagar);
       tr.appendChild(tdAcao);
 
       corpo.appendChild(tr);
-    });
+    }
   } catch (erro) {
     corpo.innerHTML = `<tr><td colspan='9' style="color:red">Erro: ${erro.message}</td></tr>`;
   }
 }
 
-// ✅ Apagar — busca por DATA + NOME (nunca erra!)
-async function apagarLinha(data, nomeProduto) {
+// ✅ Apagar com número exato da linha
+async function apagarLinha(linha, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
 
@@ -217,7 +219,7 @@ async function apagarLinha(data, nomeProduto) {
       method: "POST",
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       redirect: "follow",
-      body: JSON.stringify({ acao: "apagar", data: data, produto: nomeProduto })
+      body: JSON.stringify({ acao: "apagar", linha: linha })
     });
 
     const texto = await resposta.text();
@@ -227,7 +229,7 @@ async function apagarLinha(data, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados(); // Recarrega do zero com dados novos
+      carregarDados(); // Recarrega tudo com dados novos
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
