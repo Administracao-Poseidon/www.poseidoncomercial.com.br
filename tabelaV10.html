@@ -108,8 +108,8 @@
 </div>
 
 <script>
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxDF3ARtKJW42OSovMpXVkG3KYvW9vprdepZkR-PH-uj803rcWaljBLjecN0GuakkNY/exec";
-  
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbzyidJAxRiMT_1lVA2syjwcISYg8uBQauCyz-OTW1s0OMv4s2cl0jnf-rIYWmj0D7g_/exec";
+
 function calcularPrecos() {
   const custo = parseFloat(document.getElementById("custo").value) || 0;
   document.getElementById("venda50").value = (custo * 1.5).toFixed(2);
@@ -163,7 +163,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// ✅ Carregar dados
+// ✅ Carrega dados com NÚMERO EXATO da linha
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
@@ -181,37 +181,39 @@ async function carregarDados() {
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    // Pula a linha de cabeçalho e monta a tabela
-    dados.slice(1).forEach(linha => {
-      const dataLinha = linha[0];   // Data do produto
-      const nomeLinha = linha[1];   // Nome do produto
+    
+    // Pula cabeçalho (linha 0) e monta tabela
+    for (let i = 1; i < dados.length; i++) {
+      const linha = dados[i];
+      const numeroLinhaReal = linha[8]; // ✅ Vem direto do Google! Não calculado!
+      
       const tr = document.createElement("tr");
       
-      linha.forEach(celula => {
+      // Mostra os 8 campos (sem o número da linha)
+      for (let j = 0; j < 8; j++) {
         const td = document.createElement("td");
-        td.textContent = celula;
+        td.textContent = linha[j];
         tr.appendChild(td);
-      });
+      }
 
-      // Coluna com botão apagar
+      // Botão Apagar com o NÚMERO REAL da linha
       const tdAcao = document.createElement("td");
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
       btnApagar.className = "apagar";
-      // ✅ Envia DATA e NOME — nunca erra!
-      btnApagar.onclick = () => apagarLinha(dataLinha, nomeLinha);
+      btnApagar.onclick = () => apagarLinha(numeroLinhaReal, linha[1]);
       tdAcao.appendChild(btnApagar);
       tr.appendChild(tdAcao);
 
       corpo.appendChild(tr);
-    });
+    }
   } catch (erro) {
     corpo.innerHTML = `<tr><td colspan='9' style="color:red">Erro: ${erro.message}</td></tr>`;
   }
 }
 
-// ✅ Apagar — busca por DATA + NOME do produto
-async function apagarLinha(data, nomeProduto) {
+// ✅ Apaga com o NÚMERO EXATO — sem erro!
+async function apagarLinha(numeroLinha, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
 
@@ -220,7 +222,7 @@ async function apagarLinha(data, nomeProduto) {
       method: "POST",
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       redirect: "follow",
-      body: JSON.stringify({ acao: "apagar", data: data, produto: nomeProduto })
+      body: JSON.stringify({ acao: "apagar", linha: numeroLinha })
     });
 
     const texto = await resposta.text();
@@ -230,7 +232,7 @@ async function apagarLinha(data, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados(); // Recarrega TUDO do zero
+      carregarDados(); // ✅ Recarrega tudo e pega NÚMEROS NOVOS
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
