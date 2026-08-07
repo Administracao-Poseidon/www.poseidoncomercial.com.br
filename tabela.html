@@ -181,8 +181,9 @@ async function carregarDados() {
     if (!Array.isArray(dados)) throw new Error("Formato inválido");
 
     corpo.innerHTML = "";
-    dados.slice(1).forEach((linha, indice) => {
-      const linhaIndicePlanilha = indice + 2;
+    dados.slice(1).forEach(linha => {
+      const dataLinha = linha[0];
+      const nomeLinha = linha[1];
       const tr = document.createElement("tr");
       linha.forEach(celula => {
         const td = document.createElement("td");
@@ -194,7 +195,8 @@ async function carregarDados() {
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
       btnApagar.className = "apagar";
-      btnApagar.onclick = () => apagarLinha(linhaIndicePlanilha, linha[1]);
+      // ✅ Envia DATA e NOME em vez de número de linha
+      btnApagar.onclick = () => apagarLinha(dataLinha, nomeLinha);
       tdAcao.appendChild(btnApagar);
       tr.appendChild(tdAcao);
 
@@ -205,18 +207,17 @@ async function carregarDados() {
   }
 }
 
-// ✅ Apagar — usando POST em vez de DELETE
-async function apagarLinha(indiceLinha, nomeProduto) {
+// ✅ Apagar — busca por DATA + NOME (nunca erra!)
+async function apagarLinha(data, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
 
   try {
-    // Envia como POST com acao: "apagar"
     const resposta = await fetch(URL_SCRIPT, {
       method: "POST",
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       redirect: "follow",
-      body: JSON.stringify({ acao: "apagar", linha: indiceLinha })
+      body: JSON.stringify({ acao: "apagar", data: data, produto: nomeProduto })
     });
 
     const texto = await resposta.text();
@@ -226,7 +227,7 @@ async function apagarLinha(indiceLinha, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados();
+      carregarDados(); // Recarrega do zero com dados novos
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
