@@ -178,7 +178,7 @@ document.getElementById("formProduto").addEventListener("submit", async (e) => {
   }
 });
 
-// ✅ Carrega e usa a POSIÇÃO na TABELA para apagar
+// ✅ Carrega dados
 async function carregarDados() {
   const corpo = document.querySelector("#tabelaDados tbody");
   corpo.innerHTML = "<tr><td colspan='9'>Carregando...</td></tr>";
@@ -197,10 +197,9 @@ async function carregarDados() {
 
     corpo.innerHTML = "";
     
-    // i=0 é cabeçalho → produtos começam em i=1
+    // Pula cabeçalho e monta tabela
     for (let i = 1; i < dados.length; i++) {
       const linha = dados[i];
-      const indiceTabela = i - 1; // ✅ Posição real na tabela (0, 1, 2...)
       
       const tr = document.createElement("tr");
       
@@ -216,12 +215,12 @@ async function carregarDados() {
         tr.appendChild(td);
       }
 
-      // Botão Apagar com a POSIÇÃO correta
+      // Botão Apagar → envia DATA e NOME
       const tdAcao = document.createElement("td");
       const btnApagar = document.createElement("button");
       btnApagar.textContent = "🗑️ Apagar";
       btnApagar.className = "apagar";
-      btnApagar.onclick = () => apagarLinha(indiceTabela, linha[1]);
+      btnApagar.onclick = () => apagarLinha(linha[0], linha[1]);
       tdAcao.appendChild(btnApagar);
       tr.appendChild(tdAcao);
 
@@ -232,8 +231,8 @@ async function carregarDados() {
   }
 }
 
-// ✅ Apaga pela POSIÇÃO → recarrega tudo → SEMPRE correto!
-async function apagarLinha(indiceTabela, nomeProduto) {
+// ✅ Apaga enviando DATA e NOME — o servidor reescreve a planilha sem ela
+async function apagarLinha(data, nomeProduto) {
   const confirmacao = confirm(`Tem certeza que deseja apagar:\n"${nomeProduto}"?`);
   if (!confirmacao) return;
 
@@ -242,7 +241,7 @@ async function apagarLinha(indiceTabela, nomeProduto) {
       method: "POST",
       headers: {"Content-Type": "text/plain;charset=utf-8"},
       redirect: "follow",
-      body: JSON.stringify({ acao: "apagar", indice: indiceTabela })
+      body: JSON.stringify({ acao: "apagar", data: data, produto: nomeProduto })
     });
 
     const texto = await resposta.text();
@@ -252,7 +251,7 @@ async function apagarLinha(indiceTabela, nomeProduto) {
 
     if (resultado.status === "sucesso") {
       alert("✅ Produto apagado com sucesso!");
-      carregarDados(); // ✅ Recarrega → TODOS os índices são ATUALIZADOS!
+      carregarDados(); // Recarrega tudo
     } else {
       throw new Error(resultado.mensagem || "Erro ao apagar");
     }
